@@ -1,39 +1,39 @@
+import sys
+
 from defs import *
+from view import *
+
 
 def main():
-    while True:
-        choice = buttonbox("Ласкаво просимо в кав'ярню", 'CoffeeShop', ['Перейти до покупки', "Персонал", 'Вихід'],
-                           image='images\\212409.gif')
-        if choice == 'Перейти до покупки':
+    choice = ViewModels().start_menu()
+
+    if choice == 'Перейти до покупки':
+        choice = ViewModels().choose_goods()
+
+        if choice == "Кава":
+            coffe = choose_coffe(choice)
+            choice_of_milk(coffe)
+            quantity_of_the_desired_product(choice, choise)
+
+        elif choice == "Смаколики":
+            choice, choise = yummy(choice)
+            quantity_of_the_desired_product(choice, choise)
+
+        elif choice == 'Відміна':
+            cleaning_basket()
+
+        elif choice == 'Переглянути кошик':
+            receipt(clients_code)
+
+        elif choice == 'Оплата':
             clients_code = discount()
-            with open(inventoryPath, "r", encoding='utf-8') as menu:
-                base_menu = json.load(menu)
-                while choice != 'Відміна':
-                    choice = buttonbox("Що бажаєте купити?: ", "CoffeeShop", ['Кава', "Смаколики", 'Оплата', 'Переглянути кошик', "Відміна"],
-                                       image='images\\763a73bb9b8e0bdf01e02f523946a313.gif')
-                    if choice == "Кава":
-                        coffe(choice)
+            receipt(clients_code)
 
-                    elif choice == "Смаколики":
-                        smacolik(choice)
+    elif choice == "Персонал":
+        return loginPersonal()
 
-                    elif choice == 'Відміна':
-                        cleaning_basket()
-
-                    elif choice == 'Переглянути кошик':
-                        receipt(clients_code)
-
-                    elif choice == 'Оплата':
-                        receipt(clients_code)
-
-        elif choice == "Персонал":
-            return loginPersonal()
-
-        elif choice == 'Вихід':
-            break
-
-        else:
-            continue
+    else:
+        sys.exit()
 
 
 if __name__ == '__main__':
