@@ -1,8 +1,6 @@
 import os.path
 import random
-import sys
 import time
-from easygui import *
 import json
 from view import *
 import sys
@@ -58,99 +56,101 @@ class CreateDataForUser:
         return key
 
 
-def discount():
-    choice = ViewModels().sales_user_card()
-    file2 = WorkDataJson().read_clients_baza_file()
+class UserDiscount:
+    def __init__(self, data_discount):
+        self.data_discount = data_discount
 
-    if choice == 'Бажаєте зареєструвати':
+    def find_user_discount_in_data(self):
+        clients_code = ViewModels().enter_code_sales_user()
+        if str(clients_code) not in self.data_discount:
+            return 0
+        else:
+            discount_math = self.data_discount.get(clients_code).get("Сума") / 500
+            if discount_math > 20:
+                CreateDataForUser(20)
+                name = self.data_discount.get(clients_code).get("Імя")
+                ViewModels().info_about_discount_sale(name, discount_math)
+                return discount_math
+
+    def create_number_of_discount(self):
         key = CreateDataForUser.create_key
         name = ViewModels().enter_name_user()
 
         ViewModels().view_sales_user_code(name, key)
 
-        file2[key] = {'Ім`я': name, 'Знижка': 0, 'Сума': 0}
-        WorkDataJson().write_clients_baza_file(file2)
+        self.data_discount[key] = {'Ім`я': name, 'Знижка': 0, 'Сума': 0}
+        WorkDataJson().write_clients_baza_file(self.data_discount)
 
         return key
 
-    elif choice == 'Я маю знижку':
-        clients_code = ViewModels().enter_code_sales_user()
-        if str(clients_code) in file2:
-            discount_math = file2.get(clients_code).get("Сума") / 500
-            if discount_math > 20:
-                CreateDataForUser(20)
 
-                name = file2.get(clients_code).get("Імя")
-                msgbox(f'{name}, знижка {discount}%')
+def main_discount():
+    choice = ViewModels().sales_user_card()
+    data_discount = WorkDataJson().read_clients_baza_file()
+
+    if choice == 'Бажаєте зареєструвати':
+        return UserDiscount(data_discount).create_number_of_discount()
+
+    elif choice == 'Я маю знижку':
+        return UserDiscount(data_discount).find_user_discount_in_data()
+
     elif choice == 'Продовжити без знижки':
-        clients_code = 0
-        return clients_code
+        return 0
+
     else:
         sys.exit()
 
 
-def choose_coffe(choice):
+def choose_product(choice):
     base_menu = WorkDataJson().read_menu_file()
-    coffe_menu = [i for i in base_menu[choice].keys()]
+    menu_list = [i for i in base_menu[choice].keys()]
     lst = ""
     for txt in base_menu.get(choice):
         lst += f'{txt} - {base_menu.get(choice).get(txt).get("Ціна")} {base_menu.get(choice).get(txt).get("Валюта")}\n'
-    choise = ViewModels().coffe_menu(coffe_menu, lst)
+    return ViewModels().coffe_menu(menu_list, lst)
 
+
+def do_you_wanna_milk(choise):
     lst_menu_in_milk = ["Капучино", "Латте", "Флет Уайт", "Раф кава"]
-    if choise in lst_menu_in_milk:
+    if choise not in lst_menu_in_milk:
         return choise
     else:
         milk_yes_no = ViewModels().do_you_want_to_milk()
         if milk_yes_no == "Так":
-            return choise
-
-
-def yummy(choice):
-    base_menu = WorkDataJson().read_menu_file()
-    coffe_menu_list = [i for i in base_menu[choice].keys()]
-    lst = ""
-    for txt in base_menu.get(choice):
-        lst += f'{txt} - {base_menu.get(choice).get(txt).get("Ціна")} {base_menu.get(choice).get(txt).get("Валюта")}\n'
-    choise = ViewModels().yummy_menu(coffe_menu_list, lst)
-    return choice, choise
+            return True
 
 
 def choice_of_milk(choice_coffe):
-    milk = ViewModels().choose_milk_type(choice_coffe)
-    if milk == 'Кокосове':
-        msgbox(f'Ви вибрали {choice_coffe} на Кокосовому молоці', image='images\\34.gif')
-    elif milk == 'Бананове':
-        msgbox(f'Ви вибрали {choice_coffe} на Банановому молоці', image='images\\33.gif')
-    elif milk == 'Вівсяне':
-        msgbox(f'Ви вибрали {choice_coffe} на Вівсяному молоці', image='images\\36.gif')
-    elif milk == 'Мигдальне':
-        msgbox(f'Ви вибрали {choice_coffe} на Мигдальному молоці', image='images\\35.gif')
-    elif milk == 'Простому':
-        msgbox(f'Ви вибрали {choice_coffe} на Простому молоці', image='images\\35.gif')
+    return ViewModels().choose_milk_type(choice_coffe)
 
 
-def quantity_of_the_desired_product(choice, choise):                               # choice - вид товару (каваб смаколики), choise - к-ть товару
-    while True:
-        base_menu = WorkDataJson().read_menu_file()
-        amounts = ViewModels().enter_number_product(choise)
-        price = base_menu.get(choice).get(choise).get("Ціна")
-        if base_menu.get(choice).get(choise).get("Кількість") >= int(amounts):
-            koshel1 = buttonbox(f"Ви додали до кошика {amounts} {choise}", "CoffeeShop", ["Далі"],
-                                image='images\\Cjey.gif')
+class WorkerProductData:
+    def __init__(self, base_menu):
+        self.base_menu = base_menu
+
+    def check_product_in_data(self, user_choose_product, type_product, amounts):
+        price = self.base_menu.get(user_choose_product).get(type_product).get("Ціна")
+        if self.base_menu.get(user_choose_product).get(type_product).get("Кількість") >= int(amounts):
+            basket = ViewModels().check_add_prod_to_basket(amounts, type_product)
             data1 = WorkDataJson().read_basket_file()
-            if choise in data1:
-                data1[choise]["Кількість"] = data1[choise]["Кількість"] + int(amounts)
-                data1[choise]["Ціна"] = data1[choise]["Кількість"] * price
+            if type_product in data1:
+                data1[type_product]["Кількість"] = data1[type_product]["Кількість"] + int(amounts)
+                data1[type_product]["Ціна"] = data1[type_product]["Кількість"] * price
             else:
-                data1[choise] = {"Кількість": int(amounts), "Ціна": price * int(amounts),
-                                 "Валюта": base_menu.get(choice).get(choise).get("Валюта")}
+                data1[type_product] = {"Кількість": int(amounts), "Ціна": price * int(amounts),
+                                 "Валюта": self.base_menu.get(user_choose_product).get(type_product).get("Валюта")}
 
             WorkDataJson().write_basket_file(data1)
-            return koshel1
+            return basket
 
         else:
-            ViewModels().info_error_count_product(choise)
+            ViewModels().info_error_count_product(type_product)
+
+
+def main_work_with_product_in_data(user_choose_product, type_product):
+    base_menu = WorkDataJson().read_menu_file()
+    amounts = ViewModels().enter_number_product(type_product)
+    WorkerProductData(base_menu).check_product_in_data(user_choose_product, type_product, amounts)
 
 
 def cleaning_basket():

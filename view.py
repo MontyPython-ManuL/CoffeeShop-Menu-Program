@@ -32,6 +32,17 @@ class ViewModels:
     def choose_milk_type(self, choice_coffe):
         milk = buttonbox(f"З якого молока вам приготувати {choice_coffe}", 'Milk',
                          ['Кокосове', 'Бананове', 'Вівсяне', 'Мигдальне', 'Простому'], image='images\\37.gif')
+        if milk == 'Кокосове':
+            msgbox(f'Ви вибрали {choice_coffe} на Кокосовому молоці', image='images\\34.gif')
+        elif milk == 'Бананове':
+            msgbox(f'Ви вибрали {choice_coffe} на Банановому молоці', image='images\\33.gif')
+        elif milk == 'Вівсяне':
+            msgbox(f'Ви вибрали {choice_coffe} на Вівсяному молоці', image='images\\36.gif')
+        elif milk == 'Мигдальне':
+            msgbox(f'Ви вибрали {choice_coffe} на Мигдальному молоці', image='images\\35.gif')
+        elif milk == 'Простому':
+            msgbox(f'Ви вибрали {choice_coffe} на Простому молоці', image='images\\35.gif')
+
         return milk
 
     def sales_user_card(self):
@@ -50,6 +61,9 @@ class ViewModels:
 
     def view_sales_user_code(self, name, key):
         msgbox(f'{name} Ваш код для знижки - {key}')
+
+    def info_about_discount_sale(self, name, discount_math):
+        msgbox(f'{name}, знижка {discount_math}%')
 
     def enter_number_product(self, choise):
         amounts = enterbox(f'Скільки {choise} вам потрібно?')
@@ -84,3 +98,8 @@ class ViewModels:
         choose_del = multenterbox(f"Введіть назву продукту для того щоб {do}", 'change',
                                   ['Тип продукту(Кава\Смаколики)', 'Продукт', 'Кількість'])
         return choose_del
+
+    def check_add_prod_to_basket(self, amounts, type_product):
+        basket = buttonbox(f"Ви додали до кошика {amounts} {type_product}", 'CoffeeShop', ['Далі'],
+                            image='images\\Cjey.gif')
+        return basket
